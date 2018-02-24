@@ -22,7 +22,7 @@ import javafx.stage.Stage;
  *
  */
 public class ConvexHull extends Application {
-    ArrayList<Point> listPoint;
+    ArrayList<Point> arrayPoint;
     static int Neff;
     Canvas canvas;
     int width = 600;
@@ -43,14 +43,14 @@ public class ConvexHull extends Application {
 	root.getChildren().add(canvas);
 	
         //FORM CONVEX HULL
-        ArrayList<Line2D> listLine = new ArrayList<Line2D>();
+        ArrayList<Line2D> arrLine = new ArrayList<Line2D>();
         createRandomPoints(Neff);
-	listLine = formConvexHull();
+	arrLine = formConvexHull();
 	
         //DRAW AND OUTPUTS
-        System.out.println("Number of lines = " + listLine.size());
-        PrintLine(listLine);
-        draw(gc, listLine);
+        System.out.println("Number of lines = " + arrLine.size());
+        PrintLine(arrLine);
+        draw(gc, arrLine);
 	stage.setScene(new Scene(root, width, height));
 	stage.show();
 	stage.setTitle("Convex Hull");
@@ -62,7 +62,7 @@ public class ConvexHull extends Application {
     public ArrayList<Line2D> formConvexHull() {
         ArrayList<Line2D> listLine = new ArrayList<>();
         //SORT POINTS
-        Collections.sort(listPoint, new Comparator<Point>() {
+        Collections.sort(arrayPoint, new Comparator<Point>() {
         public int compare(Point p1, Point p2) {
             if (p1.x == p2.x) {
                 return Integer.compare(p1.y, p2.y);
@@ -71,10 +71,10 @@ public class ConvexHull extends Application {
             }
         }
         });
-        Point Pmin = listPoint.get(0);
-        Point Pmax = listPoint.get(Neff-1);
-        convexHullDAC("L", Pmin, Pmax, listPoint, listLine);
-        convexHullDAC("R", Pmin, Pmax, listPoint, listLine);
+        Point Pmin = arrayPoint.get(0);
+        Point Pmax = arrayPoint.get(Neff-1);
+        convexHullDAC("L", Pmin, Pmax, arrayPoint, listLine);
+        convexHullDAC("R", Pmin, Pmax, arrayPoint, listLine);
         return listLine;
     }
     /**
@@ -191,18 +191,18 @@ public class ConvexHull extends Application {
      */
     public void createRandomPoints(int N)
     {
-        listPoint = new ArrayList<>();
+        arrayPoint = new ArrayList<>();
 	int width = ((int) canvas.getWidth()) - 30;
 	int height = ((int) canvas.getHeight()) - 30;
 	for (int i = 0; i < N; i++) {
             int c = ((int) (Math.random() * (width)));
             int d = ((int) (Math.random() * (height)));
-            if (c + 15 < width)
+            if (c +15 < width)
 		c += 15;
             if (d + 15 < height)
 		d += 15;
             Point p = new Point(c, d);
-            listPoint.add(p);
+            arrayPoint.add(p);
 	}
     }
     /**
@@ -217,8 +217,8 @@ public class ConvexHull extends Application {
 	gc.setStroke(Color.BLACK);
 	gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
 	gc.setFill(Color.RED);
-	for (int i = 0; i < listPoint.size(); i++) {
-            gc.fillOval(listPoint.get(i).x -2, listPoint.get(i).y-2, 5, 5);
+	for (int i = 0; i < arrayPoint.size(); i++) {
+            gc.fillOval(arrayPoint.get(i).x -2, arrayPoint.get(i).y-2, 5, 5);
 	}
         //DRAW LINE
         double x, y;
