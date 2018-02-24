@@ -46,13 +46,17 @@ public class ConvexHull extends Application {
         //FORM CONVEX HULL
         ArrayList<Line2D> arrLine = new ArrayList<Line2D>();
         createRandomPoints(Neff);
+        double start = System.nanoTime();  
 	arrLine = formConvexHull();
+        double elapsedTime = System.nanoTime() - start;
         
         /*To avoid line duplication*/
 	if (arrLine.size() == 2) {
             arrLine.remove(1);
         }
+        
         //DRAW AND OUTPUTS
+        System.out.println("Time elapsed = " + elapsedTime/1000000 + " ms");
         System.out.println("Number of side(s) = " + arrLine.size());
         PrintLine(arrLine);
         draw(gc, arrLine);
