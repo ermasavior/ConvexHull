@@ -17,7 +17,7 @@ import static javafx.scene.paint.Color.WHITE;
 import javafx.stage.Stage;
 
 /**
- * QUICK HULL WITH DIVIDE AN CONQUER ALGORITHM
+ * QUICK HULL WITH DIVIDE AND CONQUER ALGORITHM
  * @author ERMA SAFIRA NURMASYITA
  * 13516072
  *
@@ -37,38 +37,39 @@ public class ConvexHull extends Application {
     public void start(Stage stage) throws Exception {
         //START CANVAS
         Group root = new Group();
-	canvas = new Canvas(width-30, height-30);
-	gc = canvas.getGraphicsContext2D();
-	canvas.setTranslateX(15);
-	canvas.setTranslateY(15);
-	root.getChildren().add(canvas);
+        canvas = new Canvas(width-30, height-30);
+        gc = canvas.getGraphicsContext2D();
+        canvas.setTranslateX(15);
+        canvas.setTranslateY(15);
+        root.getChildren().add(canvas);
 	
         //FORM CONVEX HULL
         ArrayList<Line2D> arrLine = new ArrayList<Line2D>();
         createRandomPoints(Neff);
         double start = System.nanoTime();  
-	arrLine = formConvexHull();
+	    arrLine = convexHull();
         double elapsedTime = System.nanoTime() - start;
         
         /*To avoid line duplication*/
-	if (arrLine.size() == 2) {
-            arrLine.remove(1);
-        }
+        if (arrLine.size() == 2) {
+                arrLine.remove(1);
+            }
         
         //DRAW AND OUTPUTS
         System.out.println("Time elapsed = " + elapsedTime/1000000 + " ms");
         System.out.println("Number of side(s) = " + arrLine.size());
         PrintLine(arrLine);
         draw(gc, arrLine);
-	stage.setScene(new Scene(root, width, height));
-	stage.show();
-	stage.setTitle("Convex Hull");
+        stage.setScene(new Scene(root, width, height));
+        stage.show();
+        stage.setTitle("Convex Hull");
     }
     /**
-     * Form Convex Hull
+     * Sort and do the Divide and Conquer Strategy
+     * Divide points into two subsets and call the formConvexHull
      * @return array of Convex Hull Line(s)
      */
-    public ArrayList<Line2D> formConvexHull() {
+    public ArrayList<Line2D> convexHull() {
         ArrayList<Line2D> arrLine = new ArrayList<>();
         //SORT POINTS
         Collections.sort(arrayPoint, new Comparator<Point>() {
@@ -82,34 +83,27 @@ public class ConvexHull extends Application {
         });
         Point Pmin = arrayPoint.get(0);
         Point Pmax = arrayPoint.get(Neff-1);
-        convexHullDAC("L", Pmin, Pmax, arrayPoint, arrLine);
-        convexHullDAC("R", Pmin, Pmax, arrayPoint, arrLine);
+        formConvexHull(Pmin, Pmax, arrayPoint, arrLine);
+        formConvexHull(Pmax, Pmin, arrayPoint, arrLine);
         return arrLine;
     }
     /**
-     * Divide and Conquer Strategy for Convex Hull
-     * @param orient = Left("L") or Right("R")
+     * Create and combine Convex Hull sides
      * @param P1
      * @param Pn
      * @param arrPoint
      * @param listLine
      */
-    public void convexHullDAC(String orient, Point P1, Point Pn, ArrayList<Point> arrPoint, ArrayList<Line2D> listLine) {
+    public void formConvexHull(Point P1, Point Pn, ArrayList<Point> arrPoint, ArrayList<Line2D> listLine) {
         ArrayList<Point> pointsLeft = new ArrayList<>();
-        if ("L".equals(orient)) {
-            pointsLeft = enumLeftPoints(P1, Pn, arrPoint);
-        } else {
-            pointsLeft = enumRightPoints(P1, Pn, arrPoint);
-        }
+        pointsLeft = enumLeftPoints(P1, Pn, arrPoint);
         
         if (!pointsLeft.isEmpty()) {
-            //DIVIDE
             Point Pmax = new Point();
             Pmax = maxPoint(P1, Pn, pointsLeft);
-            convexHullDAC(orient, P1, Pmax, pointsLeft, listLine);
-            convexHullDAC(orient, Pmax, Pn, pointsLeft, listLine);
+            formConvexHull(P1, Pmax, pointsLeft, listLine);
+            formConvexHull(Pmax, Pn, pointsLeft, listLine);
         } else {
-            //CONQUER
             Line2D.Double L;
             L = new Line2D.Double(P1, Pn);
             listLine.add(L);
@@ -127,11 +121,11 @@ public class ConvexHull extends Application {
         return det;
     }
     /**
-     * Enumerate Points on the leftside/rightside of line PminPmax
+     * Enumerate Points on the leftside of line PminPmax
      * @param Pmin
      * @param Pmax
      * @param arrPoint
-     * @return array of points on the lefside/rightside
+     * @return array of points on the leftside
      */
     ArrayList<Point> enumLeftPoints(Point Pmin, Point Pmax, ArrayList<Point> arrPoint) {
         ArrayList<Point> leftPoints = new ArrayList<>();
@@ -141,15 +135,6 @@ public class ConvexHull extends Application {
                 leftPoints.add(P);
         }
         return leftPoints;
-    }
-    ArrayList<Point> enumRightPoints(Point Pmin, Point Pmax, ArrayList<Point> arrPoint) {
-        ArrayList<Point> rightPoints = new ArrayList<>();
-        for (int i=0; i<arrPoint.size(); i++) {
-            Point P = arrPoint.get(i);
-            if (pointDeterminant(Pmin, Pmax, P) > 0)
-                rightPoints.add(P);
-        }
-        return rightPoints;
     }
     /**
      * Area of a triangle if the coordinates of the three vertices are given
@@ -201,18 +186,18 @@ public class ConvexHull extends Application {
     public void createRandomPoints(int N)
     {
         arrayPoint = new ArrayList<>();
-	int width = ((int) canvas.getWidth()) - 30;
-	int height = ((int) canvas.getHeight()) - 30;
-	for (int i = 0; i < N; i++) {
+        int width = ((int) canvas.getWidth()) - 30;
+        int height = ((int) canvas.getHeight()) - 30;
+        for (int i = 0; i < N; i++) {
             int c = ((int) (Math.random() * (width)));
             int d = ((int) (Math.random() * (height)));
             if (c +15 < width)
-		c += 15;
+		        c += 15;
             if (d + 15 < height)
-		d += 15;
+		        d += 15;
             Point p = new Point(c, d);
             arrayPoint.add(p);
-	}
+	    }
     }
     /**
      * Draw to points and Convex Hull on scene
@@ -222,28 +207,27 @@ public class ConvexHull extends Application {
     public void draw(GraphicsContext gc, ArrayList<Line2D> listLine) {
         gc.setFill(Color.BLACK);
         //DRAW POINT
-	gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-	gc.setStroke(Color.BLACK);
-	gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
-	gc.setFill(Color.RED);
-	for (int i = 0; i < arrayPoint.size(); i++) {
-            gc.fillOval(arrayPoint.get(i).x -2, arrayPoint.get(i).y-2, 5, 5);
-	}
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setStroke(Color.BLACK);
+        gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setFill(Color.RED);
+        for (int i = 0; i < arrayPoint.size(); i++) {
+            gc.fillOval(arrayPoint.get(i).x -2.5, arrayPoint.get(i).y-2.5, 5, 5);
+	    }
         //DRAW LINE
         double x, y;
-	for (int i = 0; i < listLine.size(); i++) {
+	    for (int i = 0; i < listLine.size(); i++) {
             gc.setStroke(WHITE);
             gc.beginPath();
             gc.setLineWidth(2);
             x = listLine.get(i).getP1().getX();
             y = listLine.get(i).getP1().getY();
             gc.moveTo(x, y);
-            gc.stroke();
             x = listLine.get(i).getP2().getX();
             y = listLine.get(i).getP2().getY();
             gc.lineTo(x, y);
             gc.stroke();
-	}
+	    }
     }
     /**
      * @param args the command line arguments
@@ -251,7 +235,7 @@ public class ConvexHull extends Application {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
         System.out.print("Enter a number of points: ");
-	Neff = reader.nextInt();
+	    Neff = reader.nextInt();
         reader.close();
         if (Neff>1)
             launch(args);
